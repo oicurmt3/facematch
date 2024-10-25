@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" type="image/x-icon" href="https://sandgroper.net/facematch/images/image1.jpg">
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>FaceMatch - Match the Faces!</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 20px 20px;
+            background-color: #e5e5e5;
+            margin: 0;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: -10px;
+            margin-top: -40px;
+            padding: 10px 0;
+            background-color: transparent;
+            border-bottom: 0px solid #e9ecef;
+        }
+
+        h1 {
+            font-size: 2.6em;
+            color: #333;
+            margin-bottom: 0px;
+            transform: scaleY(0.8);
+        }
+        h1 a{
+            color: #333;
+            text-decoration:none;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #555;
+            font-style: italic;
+        }
+
+        @keyframes colorFade {
+            0%, 100% { color: inherit; }
+            16.67%, 50% { color: #C70039; }
+        }
+
+        h1 {
+            position: relative;
+        }
+
+        .animate-letter {
+            animation: colorFade 4s ease-in-out;
+            animation-iteration-count: 1;
+            animation-fill-mode: forwards;
+            display: inline-block;
+        }
+        .animate-letter:nth-of-type(1) {
+            animation-delay: 4.0s;
+        }
+        .animate-letter:nth-of-type(2) {
+            animation-delay: 6.0s;
+        }
+
+        #controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            margin-top: 5px;
+            width: 100%;
+            max-width: 400px;
+        }
+		i.material-icons {font-size: 30px;}
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .control-group label {
+            margin-bottom: 0px;
+            font-size: 1.5em;
+            color: #333;
+            cursor: help;
+        }
+
+        .control-group select {
+            margin-top: -10; /* Remove any top margin */
+        }
+
+        .control-group {
+            gap: 0px; /* Reduce the gap between icon and dropdown */
+        }
+
+        select {
+            padding: 5px;
+            font-size: 1em;
+            border-radius: 5px;
+            border: none;
+            background-color: #333;
+            color: #fff;
+            cursor: pointer;
+            width: 90px;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        select option {
+            width: auto;
+            min-width: 100%;
+        }
+        select, button {
+            padding: 5px;
+            font-size: 1em;
+            border-radius: 5px;
+            border: none;
+            background-color: #333;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        #game-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        #share-game-btn, #reset-game-btn {
+            padding: 5px 10px;
+            font-size: 1em;
+            border-radius: 5px;
+            border: none;
+            background-color: #333;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        #share-game-btn:hover, #reset-game-btn:hover {
+            background-color: #555;
+        }
+
+        #game-info {
+            font-size: 1.2em;
+            margin-top: 5px;
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 300px;
+            width: 100%;
+        }
+
+        #game-board {
+            display: grid;
+            gap: 8px;
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 5px;
+        }
+        .card {
+            width: 100%;
+            padding-top: 100%;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2em;
+            cursor: pointer;
+            position: relative;
+            border-radius: 10px;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        .card:hover {
+            transform: scale(1.05);
+        }
+        .card div {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .matched {
+            background-color: #fff !important;
+            color: #333 !important;
+        }
+        @media (max-width: 600px) {
+            #game-board {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .accordion {
+          width: 100%;
+          max-width: 600px;
+          margin-top: 10px;
+        }
+
+        .accordion-btn {
+          background-color: #333;
+          color: white;
+          cursor: pointer;
+          padding: 18px;
+          width: 100%;
+          text-align: left;
+          border: none;
+          outline: none;
+          transition: 0.4s;
+        }
+
+        .accordion-btn:hover {
+          background-color: #555;
+        }
+
+        .accordion-btn:after {
+          content: '\002B';
+          color: white;
+          font-weight: bold;
+          float: right;
+          margin-left: 5px;
+        }
+
+        .accordion-btn.active:after {
+          content: "\2212";
+        }
+
+        .accordion-content {
+          padding: 0 18px;
+          background-color: white;
+          max-height: 0;
+          overflow: hidden;
+          transition: max-height 0.2s ease-out;
+        }
+
+        #icon-list {
+          list-style-type: none;
+          padding: 0;
+          columns: 2;
+          -webkit-columns: 2;
+          -moz-columns: 2;
+        }
+
+        @media (max-width: 600px) {
+          #icon-list {
+            columns: 1;
+            -webkit-columns: 1;
+            -moz-columns: 1;
+          }
+        }
+
+        #icon-list li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        #icon-list img {
+            margin-right: 1em;
+            height: 50px;
+        }
+
+        @keyframes flashRed {
+            0%, 100% { color: inherit; }
+            50% { color: red; }
+        }
+
+        .flash-red {
+            animation: flashRed 0.5s ease-in-out;
+            animation-iteration-count: 5;
+        }
+        .btn-container {margin-top:10px;}
+
+        #all-icon-list {
+          list-style-type: none;
+          padding: 0;
+          columns: 2;
+          -webkit-columns: 2;
+          -moz-columns: 2;
+        }
+
+        @media (max-width: 600px) {
+          #all-icon-list {
+            columns: 1;
+            -webkit-columns: 1;
+            -moz-columns: 1;
+          }
+        }
+
+        #all-icon-list li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        #all-icon-list img {
+            margin-right: 10px;
+            height: 50px;
+        }
+
+        .card img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        /* Ensure proper centering and sizing for card images */
+        .card {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card div {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1><a href="https://ko-fi.com/pjeaje"><span class="animate-letter">M</span>atch<span class="animate-letter">M</span>emory</a></h1>
+</header>
+
+<div id="controls">
+    <div class="control-group">
+        <label for="grid-size" title="Grid Size"><i class="material-icons">grid_view</i></label>
+        <select id="grid-size">
+            <option value="4x4" selected>4x4</option>
+            <option value="4x5">4x5</option>
+            <option value="6x5">6x5</option>
+            <option value="6x6">6x6</option>
+        </select>
+    </div>
+    <div class="control-group">
+        <label for="match-mode" title="Matching Cards"><i class="material-icons">content_copy</i></label>
+        <select id="match-mode"></select>
+    </div>
+    <div class="control-group">
+        <label for="speed" title="Flip Speed"><i class="material-icons">speed</i></label>
+        <select id="speed">
+            <option value="manual">Manual</option>
+            <option value="2000">Slow</option>
+            <option value="1000" selected>Normal</option>
+            <option value="500">Fast</option>
+            <option value="100">Blink</option>
+        </select>
+    </div>
+</div>
+
+<div id="game-controls">
+    <button id="share-game-btn">Share</button>
+    <button id="reset-game-btn">New</button>
+</div>
+
+<div id="game-board"></div>
+<div id="game-info">
+    <span><i class="material-icons">play_arrow</i> <span id="attempts">0</span></span>
+    <span><i class="material-icons">layers</i> <span id="sets">0</span>/<span id="total-sets">0</span></span>
+    <span><i class="material-icons">timer</i> <span id="timer">00:00</span></span>
+</div>
+
+<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Buy me a Ko-fi', '#008a09', 'Z8Z6P25B8');kofiwidget2.draw();
+</script>
+
+<div class="accordion">
+  <button class="accordion-btn">Images Used</button>
+  <div class="accordion-content">
+    <ul id="icon-list"></ul>
+  </div>
+</div>
+
+<div class="accordion">
+  <button class="accordion-btn">All Images</button>
+  <div class="accordion-content">
+    <ul id="all-icon-list"></ul>
+  </div>
+</div>
+
+<script>
+let imagesArray = [
+    'image1.jpg', 'image2.jpg', 'image3.jpg', 'image4.jpg', 'image5.jpg',
+    'image6.jpg', 'image7.jpg', 'image8.jpg', 'image9.jpg', 'image10.jpg',
+    'image11.jpg', 'image12.jpg', 'image13.jpg', 'image14.jpg', 'image15.jpg',
+    'image16.jpg', 'image17.jpg', 'image18.jpg',
+];
+let imageSet = [];
+let matchMode = 2;
+let gridSize = '4x4';
+let firstCard = null;
+let secondCard = null;
+let thirdCard = null;
+let matchedSets = 0;
+let totalSets = 0;
+let attempts = 0;
+let speedLocked = false;
+let isLoading = false;
+let startTime;
+let timerInterval;
+let gameEnded = false;
+let manualFlipMode = false;
+let gameId = null;
+
+function populateAllImagesList() {
+    const allImageList = document.getElementById('all-icon-list');
+    allImageList.innerHTML = '';
+    imagesArray.forEach(image => {
+        const li = document.createElement('li');
+        const imgElement = document.createElement('img');
+        imgElement.src = `images/${image}`;
+        imgElement.alt = 'Game image';
+        li.appendChild(imgElement);
+        allImageList.appendChild(li);
+    });
+
+    const accordionContent = allImageList.closest('.accordion-content');
+    if (accordionContent.style.maxHeight) {
+        accordionContent.style.maxHeight = accordionContent.scrollHeight + "px";
+    }
+}
+
+document.getElementById('reset-game-btn').addEventListener('click', function() {
+    if (confirm('Are you sure? This will start a new game and clear the shared URL.')) {
+        resetGame();
+    }
+});
+
+document.getElementById('grid-size').addEventListener('change', function() {
+    gridSize = this.value;
+    updateMatchModeOptions();
+    resetGame();
+});
+
+document.getElementById('match-mode').addEventListener('change', function() {
+    matchMode = parseInt(this.value);
+    resetGame();
+});
+
+document.getElementById('speed').addEventListener('change', function() {
+    if (speedLocked) {
+        this.disabled = true;
+    }
+    manualFlipMode = this.value === 'manual';
+});
+
+document.addEventListener('click', function(event) {
+    if (event.target.id === 'share-game-btn') {
+        saveGame();
+        if (!navigator.share) {
+            event.target.textContent = 'Game Details Copied!';
+            setTimeout(() => {
+                event.target.textContent = 'Share';
+            }, 2000);
+        }
+    }
+});
+
+function endGame() {
+    gameEnded = true;
+    stopTimer();
+    document.querySelectorAll('.card').forEach(card => {
+        card.style.pointerEvents = 'none';
+    });
+}
+
+function saveGame() {
+    const speed = document.getElementById('speed').value;
+    const gameState = {
+        g: gridSize,
+        m: matchMode,
+        i: imageSet,
+        s: speed,
+        id: gameId
+    };
+    const gameStateString = btoa(JSON.stringify(gameState));
+    const url = new URL(window.location.href);
+    url.searchParams.set('state', gameStateString);
+    const newUrl = url.href;
+    
+    const shareText = `I've played MatchMemory!\nMoves: ${attempts}\nSets: ${matchedSets}/${totalSets}\nTime: ${document.getElementById('timer').textContent}\nCan you beat my score?\n`;
+
+    if (navigator.share) {
+        navigator.share({
+            title: 'MatchMemory Game',
+            text: shareText,
+            url: newUrl
+        }).then(() => {
+            console.log('Thanks for sharing!');
+        }).catch(console.error);
+    } else {
+        const fullMessage = `${shareText}\n\nPlay here: ${newUrl}`;
+        navigator.clipboard.writeText(fullMessage).then(function() {
+            alert('Game saved! The game details have been copied to your clipboard.\n\nYou can use this to share with a friend or to continue the game later.');
+        }, function() {
+            alert('Game saved! You can use this text to share with a friend or to continue the game later:\n\n' + fullMessage);
+        });
+    }
+    
+    history.pushState(null, '', newUrl);
+}
+
+function updateMatchModeOptions() {
+    const matchModeSelect = document.getElementById('match-mode');
+    const [rows, cols] = gridSize.split('x').map(Number);
+    const totalCards = rows * cols;
+
+    matchModeSelect.innerHTML = '';
+
+    const option2 = document.createElement('option');
+    option2.value = '2';
+    option2.textContent = '2 cards';
+    matchModeSelect.appendChild(option2);
+
+    if (totalCards >= 30) {
+        const option3 = document.createElement('option');
+        option3.value = '3';
+        option3.textContent = '3 cards';
+        matchModeSelect.appendChild(option3);
+    }
+
+    if (matchMode !== 2 && matchMode !== 3) {
+        matchMode = 2;
+    } else if (matchMode === 3 && totalCards < 30) {
+        matchMode = 2;
+    }
+
+    matchModeSelect.value = matchMode.toString();
+}
+
+function createImageSet() {
+    if (!isLoading) {
+        imageSet = [];
+        const [rows, cols] = gridSize.split('x').map(Number);
+        const totalCards = rows * cols;
+        totalSets = totalCards / matchMode;
+        document.getElementById('total-sets').textContent = totalSets;
+        
+        const shuffledImages = [...imagesArray].sort(() => Math.random() - 0.5);
+        const selectedImages = shuffledImages.slice(0, totalSets);
+        
+        for (let i = 0; i < totalSets; i++) {
+            for (let j = 0; j < matchMode; j++) {
+                imageSet.push(selectedImages[i]);
+            }
+        }
+
+        shuffle(imageSet);
+    }
+
+    updateImageList();
+}
+
+function updateImageList() {
+    const uniqueImages = new Set(imageSet);
+    const imageList = document.getElementById('icon-list');
+    imageList.innerHTML = '';
+    uniqueImages.forEach(image => {
+        const li = document.createElement('li');
+        const imgElement = document.createElement('img');
+        imgElement.src = `images/${image}`;
+        imgElement.alt = 'Game image';
+        li.appendChild(imgElement);
+        imageList.appendChild(li);
+    });
+
+    const accordionContent = document.querySelector('.accordion-content');
+    if (accordionContent.style.maxHeight) {
+        accordionContent.style.maxHeight = accordionContent.scrollHeight + "px";
+    }
+}
+
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+function getRandomColor() {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
+function createBoard() {
+    const gameBoard = document.getElementById('game-board');
+    const [rows, cols] = gridSize.split('x').map(Number);
+    gameBoard.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    gameBoard.innerHTML = '';
+
+    imageSet.forEach(value => {
+        const card = document.createElement('div');
+        card.classList.add('card');
+        card.dataset.value = value;
+        card.style.backgroundColor = getRandomColor();
+        card.addEventListener('click', () => flipCard(card));
+        const innerDiv = document.createElement('div');
+        card.appendChild(innerDiv);
+        gameBoard.appendChild(card);
+    });
+}
+
+function flipCard(card) {
+    if (gameEnded) return;
+
+    if (!startTime) {
+        startTimer();
+    }
+
+    if (!speedLocked) {
+        document.getElementById('speed').disabled = true;
+        speedLocked = true;
+    }
+
+    if (firstCard && secondCard && (matchMode === 2 || thirdCard)) {
+        if (manualFlipMode) {
+            resetFlip(firstCard, secondCard, thirdCard);
+            resetCards();
+        } else {
+            return;
+        }
+    }
+
+    card.querySelector('div').innerHTML = `<img src="images/${card.dataset.value}" alt="${card.dataset.value}">`;
+    card.style.backgroundColor = '#fff';
+
+    if (!firstCard) {
+        firstCard = card;
+    } else if (!secondCard && card !== firstCard) {
+        secondCard = card;
+        if (matchMode === 2) {
+            attempts++;
+            updateScore();
+            checkMatch();
+        }
+    } else if (!thirdCard && card !== firstCard && card !== secondCard && matchMode === 3) {
+        thirdCard = card;
+        attempts++;
+        updateScore();
+        checkMatch();
+    }
+}
+
+function checkMatch() {
+    if (matchMode === 2 && firstCard.dataset.value === secondCard.dataset.value) {
+        setMatched(firstCard, secondCard);
+    } else if (
+        matchMode === 3 &&
+        firstCard.dataset.value === secondCard.dataset.value &&
+        secondCard.dataset.value === thirdCard.dataset.value
+    ) {
+        setMatched(firstCard, secondCard, thirdCard);
+    } else {
+        if (!manualFlipMode) {
+            const speed = parseInt(document.getElementById('speed').value, 10);
+            setTimeout(() => {
+                resetFlip(firstCard, secondCard, thirdCard);
+                resetCards();
+            }, speed);
+        }
+    }
+}
+
+function setMatched(...cards) {
+    cards.forEach(card => card.classList.add('matched'));
+    matchedSets++;
+    updateScore();
+    if (matchedSets === totalSets) {
+        endGame();
+        document.getElementById('total-sets').classList.add('flash-red');
+        setTimeout(() => {
+            document.getElementById('total-sets').classList.remove('flash-red');
+        }, 2500);
+    }
+    resetCards();
+}
+
+function resetFlip(...cards) {
+    cards.forEach(card => {
+        if (card && !card.classList.contains('matched')) {
+            card.querySelector('div').innerHTML = '';
+            card.style.backgroundColor = getRandomColor();
+            card.style.color = 'white';
+        }
+    });
+}
+
+function resetCards() {
+    firstCard = null;
+    secondCard = null;
+    thirdCard = null;
+}
+
+function updateScore() {
+    document.getElementById('attempts').textContent = attempts;
+    document.getElementById('sets').textContent = matchedSets;
+}
+
+function startTimer() {
+    startTime = Date.now();
+    timerInterval = setInterval(updateTimer, 1000);
+}
+
+function stopTimer() {
+    clearInterval(timerInterval);
+}
+
+function updateTimer() {
+    const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+    const minutes = Math.floor(elapsedTime / 60).toString().padStart(2, '0');
+    const seconds = (elapsedTime % 60).toString().padStart(2, '0');
+    document.getElementById('timer').textContent = `${minutes}:${seconds}`;
+}
+
+function loadGameFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const gameStateString = urlParams.get('state');
+    if (gameStateString) {
+        try {
+            const gameState = JSON.parse(atob(gameStateString));
+            gridSize = gameState.g;
+            matchMode = gameState.m;
+            imageSet = gameState.i;
+            const speed = gameState.s;
+            gameId = gameState.id;
+
+            document.getElementById('grid-size').value = gridSize;
+            updateMatchModeOptions();
+            document.getElementById('match-mode').value = matchMode.toString();
+            document.getElementById('speed').value = speed;
+            manualFlipMode = speed === 'manual';
+
+            isLoading = true;
+            createBoard();
+            isLoading = false;
+            
+            updateImageList();
+            
+            attempts = 0;
+            matchedSets = 0;
+            document.getElementById('timer').textContent = '00:00';
+            updateScore();
+            
+            gameEnded = false;
+            speedLocked = false;
+            document.getElementById('speed').disabled = false;
+            startTime = null;
+
+            const [rows, cols] = gridSize.split('x').map(Number);
+            const totalCards = rows * cols;
+            totalSets = totalCards / matchMode;
+            document.getElementById('total-sets').textContent = totalSets;
+        } catch (e) {
+            console.error('Invalid game state in URL', e);
+        }
+    }
+}
+
+function resetGame(partial = false) {
+    gameEnded = false;
+    stopTimer();
+    matchedSets = 0;
+    attempts = 0;
+    speedLocked = false;
+    document.getElementById('speed').disabled = false;
+    document.getElementById('timer').textContent = '00:00';
+    startTime = null;
+    
+    if (!partial) {
+        gameId = Date.now().toString(36) + Math.random().toString(36).substr(2);
+        createImageSet();
+        updateMatchModeOptions();
+        createBoard();
+        
+        const baseUrl = window.location.href.split('?')[0];
+        window.history.pushState({}, document.title, baseUrl);
+    }
+
+    updateScore();
+}
+
+function setupAccordion() {
+    const accordions = document.querySelectorAll(".accordion-btn");
+    accordions.forEach(acc => {
+        acc.addEventListener("click", function() {
+            this.classList.toggle("active");
+            const content = this.nextElementSibling;
+            if (content.style.maxHeight) {
+                content.style.maxHeight = null;
+            } else {
+                content.style.maxHeight = content.scrollHeight + "px";
+            }
+        });
+    });
+}
+
+window.onload = function() {
+    updateMatchModeOptions();
+    loadGameFromURL();
+    if (imageSet.length === 0) {
+        resetGame();
+    }
+    updateScore();
+    setupAccordion();
+    populateAllImagesList();
+};
+
+</script>
+<!-- Start of banner -->
+<div style="width: 100%; background-color: #f0f0f0;">
+    <a href="https://sandgroper.net" style="display: block; text-decoration: none; color: #333; text-align: center; padding: 10px 0; font-family: Arial, sans-serif;">
+        <p style="margin: 5px 0 0 0; font-size: 16px;">click for more games</p>
+    </a>
+</div>
+<!-- End of banner -->	
+</body>
+</html>
